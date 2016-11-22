@@ -5,8 +5,6 @@ import json
 import datetime
 # Create your views here.
 def hello(response):
-    ytf = School(name='qing hua da xue')
-    ytf.save()
 
     return HttpResponse("hello,")
 #add student
