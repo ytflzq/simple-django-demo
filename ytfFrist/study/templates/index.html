@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>demo</title>
+    <style type="text/css">
+        .clear{
+            clear: both;
+            overflow: hidden;
+            height: 0;
+        }
+        .data_form div{
+            margin-bottom: 15px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/static/js/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container" style="margin-top: 25px;">
+        <button type="button" class="btn btn-success QK" style="padding: 0 12px;" data-toggle="modal" data-target="#addModal">添加</button>
+        <table class="table table-striped">
+            <thead>
+                <th>姓名</th>
+                <th>年龄</th>
+                <th>身高</th>
+                <th>薪资</th>
+                <th>操作</th>
+            </thead>
+            <tbody>
+                {% for item in info %}
+                <tr data="{{ item.id }}">
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.age }}</td>
+                    <td>{{ item.height }}</td>
+                    <td>{{ item.salary }}</td>
+                    <td>
+                        <button type="button" class="btn" style="padding: 0 12px;" onclick="del_student({{ item.id }})">删除</button>
+
+                        <button type="button" data-toggle="modal" data-target="#updateModal" style="padding: 0 12px;" onclick="up_student('{{ item.id }}','{{ item.name }}','{{ item.age }}','{{ item.height }}','{{ item.salary }}')" class="btn">编辑</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <h4>统计日期：{{cur_time|date:'F j, Y' }}</h4>
+    </div>
+
+    <!-- 新增窗口 -->
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">添加学生信息</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="data_form" id="add_form">
+                        {% csrf_token %}
+                        <div class="col-md-3">姓名：</div>
+                        <div class="col-md-8">
+                            <input type="text" name="name" id="name" class="form-control">
+                        </div>
+
+                        <div class="col-md-3">年龄：</div>
+                        <div class="col-md-8">
+                            <input type="text" name="age" id="age" class="form-control">
+                        </div>
+
+                        <div class="col-md-3">身高：</div>
+                        <div class="col-md-8">
+                            <input type="text" name="height" id="height" class="form-control">
+                        </div>
+
+                        <div class="col-md-3">薪资：</div>
+                        <div class="col-md-8">
+                            <input type="text" name="salary" id="salary" class="form-control">
+                        </div>
+                        <div class="clear"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="up_student">取消</button>
+                    <button type="button" class="btn btn-success" onclick="add_save();" id="add_student">保存</button>
+                </div>
+            </div><!-- /.modal-content -->
+         </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- 编辑窗口 -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">编辑学生信息</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="data_form" id="up_form">
+                        {% csrf_token %}
+                        <div class="col-md-3">姓名：</div>
+                        <div class="col-md-8">
+                            <input type="text" name="name" id="up_name" class="form-control">
+                            <input type="hidden" name="id" id="student_up_id">
+                        </div>
+
+                        <div class="col-md-3">年龄：</div>
+                        <div class="col-md-8">
+                            <input type="text" name="age" id="up_age" class="form-control">
+                        </div>
+
+                        <div class="col-md-3">身高：</div>
+                        <div class="col-md-8">
+                            <input type="text" name="height" id="up_height" class="form-control">
+                        </div>
+
+                        <div class="col-md-3">薪资：</div>
+                        <div class="col-md-8">
+                            <input type="text" name="salary" id="up_salary" class="form-control">
+                        </div>
+                        <div class="clear"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="up_student">取消</button>
+                    <button type="button" class="btn btn-success" onclick="up_save();">保存</button>
+                </div>
+            </div><!-- /.modal-content -->
+         </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- 信息删除确认 -->  
+    <div class="modal fade" id="delModel">  
+      <div class="modal-dialog">  
+        <div class="modal-content message_align">  
+          <div class="modal-header">  
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>  
+            <h4 class="modal-title">提示信息</h4>  
+          </div>  
+          <div class="modal-body">  
+            <p>您确认要删除吗？</p>  
+          </div>  
+          <div class="modal-footer">  
+             <input type="hidden" id="del_id"/>  
+             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>  
+             <a  onclick="delSubmit()" class="btn btn-success" data-dismiss="modal">确定</a>  
+          </div>  
+        </div><!-- /.modal-content -->  
+      </div><!-- /.modal-dialog -->  
+    </div><!-- /.modal -->  
+
+    <script type="text/javascript">
+        $.ajaxSetup({
+                 data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+        });
+        //删除
+        function del_student(id) {
+            $('#del_id').val(id);
+            $('#delModel').modal();  
+        }
+        //确认删除
+        function delSubmit(){
+            var id=$.trim($("#del_id").val()); 
+            $.ajax('/del_stu',{
+                'data':{"id":id},
+                'type':"GET",
+                'success':function(data){
+                    window.location.href='/index';   
+                }
+            });
+        }
+            
+        //编辑
+        function up_student(id,name,age,height,salary) {
+            $("#student_up_id").val(id);
+            $("#up_name").val(name);
+            $("#up_age").val(age);
+            $("#up_height").val(height);
+            $("#up_salary").val(salary);
+        }
+        function up_save() {
+            $.ajax({
+               type: "POST",
+               url:"/update_stu/",
+               data:$('#up_form').serialize(),// 要提交的表单
+               success: function(msg) {
+                    window.location.href='/index';   
+                },
+               error: function(error){
+                    alert(error);
+                }
+            });
+        }
+        function add_save() {
+            $.ajax({
+               type: "POST",
+               url:"/add_stu/",
+               data:$('#add_form').serialize(),// 要提交的表单
+               success: function(msg) {
+                    window.location.href='/index';   
+                },
+               error: function(error){
+                    alert(error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
